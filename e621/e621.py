@@ -79,6 +79,41 @@ class Posts:
         return Flag(self._api)
 
 
+class Tags:
+    def __init__(self, api: e621):
+        self._api = api
+
+    def list(self, name_matches, page, category=None, order=None, hide_empty=None, has_wiki=None,
+             has_artist=None, limit=None):
+        return self._api.request(
+            "tags",
+            search={
+                "name_matches": name_matches, "category": category, "order": order,
+                "hide_empty": hide_empty, "has_wiki": has_wiki, "has_artists": has_artist,
+            },
+            limit=limit,
+            page=page
+        )
+
+
+class TagAliases:
+    def __init__(self, api: e621):
+        self._api = api
+
+    def list(self, name_matches, page, antecedent_tag_category, consequent_tag_category, status=None, order=None,
+             limit=None):
+        return self._api.request(
+            "tag_aliases",
+            search={
+                "name_matches": name_matches, "status": status, "order": order,
+                "antecedent_tag": {"category": antecedent_tag_category},
+                "consequent_tag": {"category": consequent_tag_category},
+            },
+            limit=limit,
+            page=page,
+        )
+
+
 class e621:
     def __init__(self, login: str, api_key: str):
         self._login = login
