@@ -114,6 +114,53 @@ class TagAliases:
         )
 
 
+class Notes:
+    def __init__(self, api: e621):
+        self._api = api
+
+    def list(self, body_matches, post_id, post_tags_match, creator_name, creator_id, is_active, limit):
+        return self._api.request(
+            "notes",
+            search={
+                "body_matches": body_matches, "post_id": post_id, "post_tags_match": post_tags_match,
+                "creator_name": creator_name, "creator_id": creator_id, "is_active": is_active
+            },
+            limit=limit,
+        )
+
+    def create(self, post_id, x, y, width, height, body):
+        return self._api.request(
+            "notes",
+            note={
+                "post_id": post_id, "x": x, "y": y, "width": width, "height": height,
+                "body": body
+            },
+            type="POST"
+        )
+
+    def update(self, note_id, x, y, width, height, body):
+        return self._api.request(
+            f"notes/{note_id}",
+            note={
+                "x": x, "y": y, "width": width, "height": height, "body": body
+            },
+            type="PUT"
+        )
+
+    def delete(self, note_id):
+        return self._api.request(
+            f"notes/{note_id}",
+            type="DELETE"
+        )
+
+    def revert(self, note_id, version_id):
+        return self._api.request(
+            f"notes/{note_id}/",
+            version_id=version_id,
+            type="PUT"
+        )
+
+
 class e621:
     def __init__(self, login: str, api_key: str):
         self._login = login
@@ -146,5 +193,10 @@ class e621:
                 headers=HEADERS
             ).json()
 
+    @property
     def posts(self):
         return Posts(self)
+
+    @property
+    def tags(self):
+        return Tags(self)
