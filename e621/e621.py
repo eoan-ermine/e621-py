@@ -161,6 +161,54 @@ class Notes:
         )
 
 
+class Pools:
+    def __init__(self, api: e621):
+        self._api = api
+
+    def list(self, name_matches, is_active, is_deleted, category, limit,
+             id=None, description_matches=None, creator_name=None, creator_id=None, order=None):
+
+        if not all([id, description_matches, creator_name, creator_id]):
+            raise RuntimeError("One of arguments should be passed: id, description_matches, creator_name,"
+                               " creator_id")
+
+        return self._api.request(
+            "pools",
+            search={
+                "name_matches": name_matches, "id": id, "description_matches": description_matches, "creator_name":
+                creator_name, "creator_id": creator_id, "is_active": is_active, "is_deleted": is_deleted, "category":
+                category, "order": order
+            },
+            limit=limit
+        )
+
+    def create(self, name, description, category=None, is_locked=None):
+        return self._api.request(
+            "pools",
+            pool={
+                "name": name, "description": description, "category": category, "is_locked": is_locked
+            },
+            type="POST"
+        )
+
+    def update(self, pool_id, name=None, description=None, post_ids=None, is_active=None, category=None):
+        return self._api.request(
+            f"pools/{pool_id}",
+            pool={
+                "name": name, "description": description, "post_ids": post_ids, "is_active": is_active, "category":
+                category
+            },
+            type="PUT"
+        )
+
+    def revert(self, pool_id, version_id):
+        return self._api.request(
+            f"pools/{pool_id}",
+            version_id=version_id,
+            type="PUT"
+        )
+
+
 class e621:
     def __init__(self, login: str, api_key: str):
         self._login = login
@@ -208,3 +256,7 @@ class e621:
     @property
     def notes(self):
         return Notes(self)
+
+    @property
+    def pools(self):
+        return Pools(self)
