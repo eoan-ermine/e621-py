@@ -75,6 +75,7 @@ class Posts:
             type="POST"
         )
 
+    @property
     def flag(self):
         return Flag(self._api)
 
@@ -240,6 +241,12 @@ class e621:
                 params=kwargs,
                 headers=HEADERS
             ).json()
+        elif type == "PUT":
+            return requests.put(
+                url,
+                params=kwargs,
+                headers=HEADERS
+            )
 
     @property
     def posts(self):
