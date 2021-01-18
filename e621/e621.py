@@ -200,3 +200,11 @@ class e621:
     @property
     def tags(self):
         return Tags(self)
+
+    @property
+    def tag_aliases(self):
+        return TagAliases(self)
+
+    @property
+    def notes(self):
+        return Notes(self)
