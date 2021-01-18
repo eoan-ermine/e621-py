@@ -3,7 +3,7 @@ import requests
 import e621
 
 API_ENDPOINT = "https://e621.net/"
-USER_AGENT = "e621-py/0.1.0 (by Eoan_Ermine on e621)"
+USER_AGENT = "e621-py/0.0.2 (by Eoan_Ermine on e621)"
 
 HEADERS = {"user-agent": USER_AGENT}
 
