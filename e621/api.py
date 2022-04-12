@@ -1,4 +1,5 @@
-from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Optional
 
 import requests
 
@@ -9,35 +10,28 @@ class APIRequest:
         self.params = params
 
 
-class Endpoint:
+class Endpoint(ABC):
     def __init__(self, api):
         self._api = api
 
 
 class PostsEndpoint(Endpoint):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class FavoritesEndpoint(Endpoint):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class NotesEndpoint(Endpoint):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class PoolsEndpoint(Endpoint):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class RootEndpoint(Endpoint):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     @property
     def posts(self):
         return PostsEndpoint(self._api)
@@ -64,7 +58,7 @@ class API:
 
         return RootEndpoint(api)
 
-    def __init__(self, login: str | None = None, api_key: str | None = None, timeout = 10):
+    def __init__(self, login: Optional[str] = None, api_key: Optional[str] = None, timeout = 10):
         self.login, self.api_key = login, api_key
         self.timeout = timeout
 
