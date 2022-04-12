@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "e621"
+version = "0.0.2"
+description = "e621.net API wrapper written in Python"
+authors = ["PatriotRossii <patriotrossii2019@mail.ru>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/PatriotRossii/e621-py"
+keywords = ["e621"]
+classifiers = [
+    "Operating System :: OS Independent"
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+requests = "^2.27.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
