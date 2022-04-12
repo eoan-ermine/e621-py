@@ -1,28 +1,62 @@
 from typing import List, Optional
 
-from e621.models import Note, Pool, TagAlias
+from e621.models import Note, Pool, Tag, TagAlias
 
 from .endpoints import BaseEndpoint
 
 
 class Tags(BaseEndpoint):
-    pass
+    def search(
+        self,
+        name_matches: Optional[str] = None,
+        category: Optional[str] = None,
+        order: Optional[str] = None,
+        hide_empty: Optional[bool] = None,
+        has_wiki: Optional[bool] = None,
+        has_artist: Optional[bool] = None,
+        limit: Optional[int] = None,
+        page: Optional[str] = None,
+    ) -> List[Tag]:
+        raw_tags = self._api.session.request(
+            "GET",
+            "tags.json",
+            params={
+                "search[name_matches]": name_matches,
+                "search[category]": category,
+                "search[order]": order,
+                "search[hide_empty]": hide_empty,
+                "search[has_wiki]": has_wiki,
+                "search[has_artist]": has_artist,
+                "limit": limit,
+                "page": page,
+            },
+        ).json()
+        return [Tag(**tag) for tag in raw_tags]
 
 
 class TagAliases(BaseEndpoint):
-    def search(self, name_matches: Optional[str], status: Optional[str], order: Optional[str], antecedent_tag_category: Optional[str], consequent_tag_category: Optional[str], limit: Optional[int], page: Optional[str]):
+    def search(
+        self,
+        name_matches: Optional[str] = None,
+        status: Optional[str] = None,
+        order: Optional[str] = None,
+        antecedent_tag_category: Optional[str] = None,
+        consequent_tag_category: Optional[str] = None,
+        limit: Optional[int] = None,
+        page: Optional[str] = None,
+    ) -> List[TagAlias]:
         raw_tag_aliases = self._api.session.request(
             "GET",
             "tag_aliases.json",
-            params = {
+            params={
                 "search[name_matches]": name_matches,
                 "search[status]": status,
                 "search[order]": order,
                 "search[antecedent_tag][category]": antecedent_tag_category,
                 "search[consequent_tag][category]": consequent_tag_category,
                 "limit": limit,
-                "page": page
-            }
+                "page": page,
+            },
         ).json()
         return [TagAlias(**tag_alias) for tag_alias in raw_tag_aliases]
 
