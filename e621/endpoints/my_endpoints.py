@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from e621.models import Note, Pool, Tag, TagAlias
+from e621.models import Note, EnrichedPool, Tag, TagAlias
 
 from .endpoints import BaseEndpoint
 
@@ -139,7 +139,7 @@ class Pools(BaseEndpoint):
         category: Optional[str] = None,
         order: Optional[str] = None,
         limit: Optional[int] = None,
-    ) -> List[Pool]:
+    ) -> List[EnrichedPool]:
         raw_pools = self._api.session.request(
             "GET",
             "pools.json",
@@ -156,12 +156,12 @@ class Pools(BaseEndpoint):
                 "limit": limit,
             },
         ).json()
-        return [Pool(**pool) for pool in raw_pools]
+        return [EnrichedPool(**pool) for pool in raw_pools]
 
     def create(
         self, name: str, description: str, category: Optional[str] = None, is_locked: Optional[bool] = None
-    ) -> Pool:
-        return Pool(
+    ) -> EnrichedPool:
+        return EnrichedPool(
             **self._api.session.request(
                 "POST",
                 "pools.json",
@@ -182,8 +182,8 @@ class Pools(BaseEndpoint):
         post_ids: Optional[List[int]] = None,
         is_active: Optional[bool] = None,
         category: Optional[str] = None,
-    ) -> Pool:
-        return Pool(
+    ) -> EnrichedPool:
+        return EnrichedPool(
             **self._api.session.request(
                 "PUT",
                 f"pools/{pool_id}.json",
