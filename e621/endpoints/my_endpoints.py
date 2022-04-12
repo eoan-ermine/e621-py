@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import List, Optional
 
-from e621.models import Note
+from e621.models import Note, Pool
 
 from .endpoints import BaseEndpoint
 
@@ -79,4 +79,75 @@ class Notes(BaseEndpoint):
 
 
 class Pools(BaseEndpoint):
-    pass
+    def search(
+        self,
+        name_matches: Optional[str] = None,
+        id: Optional[int] = None,
+        description_matches: Optional[str] = None,
+        creator_name: Optional[str] = None,
+        creator_id: Optional[int] = None,
+        is_active: Optional[bool] = None,
+        is_deleted: Optional[bool] = None,
+        category: Optional[str] = None,
+        order: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> List[Pool]:
+        raw_pools = self._api.session.request(
+            "GET",
+            "pools.json",
+            params={
+                "search[name_matches]": name_matches,
+                "search[id]": id,
+                "search[description_matches]": description_matches,
+                "search[creator_name]": creator_name,
+                "search[creator_id]": creator_id,
+                "search[is_active]": is_active,
+                "search[is_deleted]": is_deleted,
+                "search[category]": category,
+                "search[order]": order,
+                "limit": limit,
+            },
+        ).json()
+        return [Pool(**pool) for pool in raw_pools]
+
+    def create(
+        self, name: str, description: str, category: Optional[str] = None, is_locked: Optional[bool] = None
+    ) -> Pool:
+        return Pool(
+            **self._api.session.request(
+                "POST",
+                "pools.json",
+                params={
+                    "pool[name]": name,
+                    "pool[description]": description,
+                    "pool[category]": category,
+                    "pool[is_locked]": is_locked,
+                },
+            ).json()
+        )
+
+    def update(
+        self,
+        pool_id: int,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        post_ids: Optional[List[int]] = None,
+        is_active: Optional[bool] = None,
+        category: Optional[str] = None,
+    ) -> Pool:
+        return Pool(
+            **self._api.session.request(
+                "PUT",
+                f"pools/{pool_id}.json",
+                params={
+                    "pool[name]": name,
+                    "pool[description]": description,
+                    "pool[post_ids]": " ".join(map(str, post_ids)),
+                    "pool[is_active]": is_active,
+                    "pool[category]": category,
+                },
+            ).json()
+        )
+
+    def revert(self, pool_id: int, version_id: int) -> None:
+        self._api.session.request("PUT", f"pools/{pool_id}/revert.json", params={"version_id": version_id})
