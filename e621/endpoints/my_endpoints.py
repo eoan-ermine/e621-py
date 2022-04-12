@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from e621.models import Note, Pool
+from e621.models import Note, Pool, TagAlias
 
 from .endpoints import BaseEndpoint
 
@@ -10,7 +10,21 @@ class Tags(BaseEndpoint):
 
 
 class TagAliases(BaseEndpoint):
-    pass
+    def search(self, name_matches: Optional[str], status: Optional[str], order: Optional[str], antecedent_tag_category: Optional[str], consequent_tag_category: Optional[str], limit: Optional[int], page: Optional[str]):
+        raw_tag_aliases = self._api.session.request(
+            "GET",
+            "tag_aliases.json",
+            params = {
+                "search[name_matches]": name_matches,
+                "search[status]": status,
+                "search[order]": order,
+                "search[antecedent_tag][category]": antecedent_tag_category,
+                "search[consequent_tag][category]": consequent_tag_category,
+                "limit": limit,
+                "page": page
+            }
+        ).json()
+        return [TagAlias(**tag_alias) for tag_alias in raw_tag_aliases]
 
 
 class Notes(BaseEndpoint):
