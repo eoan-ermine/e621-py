@@ -1,4 +1,7 @@
-from e621 import models
+from typing import Optional
+
+from e621.models import Note
+
 from .endpoints import BaseEndpoint
 
 
@@ -11,7 +14,68 @@ class TagAliases(BaseEndpoint):
 
 
 class Notes(BaseEndpoint):
-    pass
+    def search(
+        self,
+        body_matches: Optional[str] = None,
+        post_id: Optional[int] = None,
+        post_tags_match: Optional[str] = None,
+        creator_name: Optional[str] = None,
+        creator_id: Optional[int] = None,
+        is_active: Optional[bool] = None,
+        limit: Optional[int] = None,
+    ) -> List[Note]:
+        raw_notes = self._api.session.request(
+            "GET",
+            "notes.json",
+            params={
+                "search[body_matches]": body_matches,
+                "search[post_id]": post_id,
+                "search[post_tags_match]": post_tags_match,
+                "search[creator_name]": creator_name,
+                "search[creator_id]": creator_id,
+                "search[is_active]": is_active,
+                "limit": limit,
+            },
+        ).json()
+        return [Note(**note) for note in raw_notes]
+
+    def create(self, post_id: int, x: int, y: int, width: int, height: int, body: str) -> Note:
+        return Note(
+            **self._api.session.request(
+                "POST",
+                "notes.json",
+                params={
+                    "note[post_id]": post_id,
+                    "note[x]": x,
+                    "note[y]": y,
+                    "note[width]": width,
+                    "note[height]": height,
+                    "note[body]": body,
+                },
+            ).json()
+        )
+
+    def update(self, note_id: int, x: int, y: int, width: int, height: int, body: str) -> Note:
+        return Note(
+            **self._api.session.request(
+                "PUT",
+                f"notes/{note_id}.json",
+                params={
+                    "note[post_id]": post_id,
+                    "note[x]": x,
+                    "note[y]": y,
+                    "note[width]": width,
+                    "note[height]": height,
+                    "note[body]": body,
+                },
+            ).json()
+        )
+
+    def delete(self, note_id: int) -> None:
+        self._api.session.request("POST", f"notes/{note_id}.json")
+
+    def revert(self, version_id) -> None:
+        self._api.session.request("PUT", f"notes/{note_id}/revert.json", params={"version_id": version_id})
 
 
 class Pools(BaseEndpoint):
