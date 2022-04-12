@@ -1,11 +1,14 @@
 from typing import List, Optional
 
-from e621.models import Note, EnrichedPool, Tag, TagAlias
+from e621.models import EnrichedPool, Note, Tag, TagAlias
 
 from .endpoints import BaseEndpoint
 
 
 class Tags(BaseEndpoint):
+    def get(self, tag_id: int) -> Tag:
+        return Tag(**self._api.session.request("GET", f"tags/{tag_id}.json").json())
+
     def search(
         self,
         name_matches: Optional[str] = None,
@@ -35,6 +38,9 @@ class Tags(BaseEndpoint):
 
 
 class TagAliases(BaseEndpoint):
+    def get(self, tag_alias_id: int) -> TagAlias:
+        return TagAliases(**self._api.session.request("GET", f"tag_aliases/{tag_alias_id}.json").json())
+
     def search(
         self,
         name_matches: Optional[str] = None,
@@ -62,6 +68,9 @@ class TagAliases(BaseEndpoint):
 
 
 class Notes(BaseEndpoint):
+    def get(self, note_id: int) -> Note:
+        return Note(**self._api.session.request("GET", f"notes/{note_id}.json").json())
+
     def search(
         self,
         body_matches: Optional[str] = None,
@@ -127,6 +136,9 @@ class Notes(BaseEndpoint):
 
 
 class Pools(BaseEndpoint):
+    def get(self, pool_id: int) -> EnrichedPool:
+        return EnrichedPool(**self._api.session.request("GET", f"pools/{pool_id}.json").json())
+
     def search(
         self,
         name_matches: Optional[str] = None,
