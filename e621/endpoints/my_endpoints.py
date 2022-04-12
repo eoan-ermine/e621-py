@@ -120,9 +120,9 @@ class Notes(BaseEndpoint):
         )
 
     def delete(self, note_id: int) -> None:
-        self._api.session.request("POST", f"notes/{note_id}.json")
+        self._api.session.request("DELETE", f"notes/{note_id}.json")
 
-    def revert(self, version_id) -> None:
+    def revert(self, note_id: int, version_id: int) -> None:
         self._api.session.request("PUT", f"notes/{note_id}/revert.json", params={"version_id": version_id})
 
 
