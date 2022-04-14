@@ -116,9 +116,9 @@ class Post(BaseModel):
     id: int
     created_at: str
     updated_at: str
-    file: File
-    preview: Preview
-    sample: Sample
+    file: Optional[File]
+    preview: Optional[Preview]
+    sample: Optional[Sample]
     score: Score
     tags: Tags
     locked_tags: List[str]
