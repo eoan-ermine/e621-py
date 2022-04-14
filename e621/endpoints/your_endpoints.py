@@ -119,27 +119,36 @@ class Favorites(BaseEndpoint):
     def list(self, user_id: Optional[int] = None, limit: Optional[int] = None, page: int = 1) -> List[EnrichedPost]:
         return _list_posts(self._api, "favorites", {"user_id": user_id, "limit": limit, "page": page})
 
-    def create(self, post_id: int):
-        pass
+    def create(self, post_id: int) -> EnrichedPost:
+        return EnrichedPost.from_response(self._api.session.post("favorites", params={"post_id": post_id}), expect=dict)
 
     def delete(self, post_id: int) -> None:
-        pass
+        self._api.session.delete(f"favorites/{post_id}")
 
 
 class PostFlags(BaseEndpoint):
-    def list(self, post_id, creator_id, creator_name) -> List[PostFlag]:
-        """
-        search[post_id] The ID of the flagged post.
-        search[creator_id] The user’s ID that created the flag.
-        search[creator_name] The user’s name that created the flag.
-        """
+    def list(
+        self,
+        post_id: Optional[int] = None,
+        creator_id: Optional[int] = None,
+        creator_name: Optional[str] = None,
+    ) -> List[PostFlag]:
+        params = {
+            "search[post_id]": post_id,
+            "search[creator_id]": creator_id,
+            "search[creator_name]": creator_name,
+        }
+        return PostFlag.from_response(self._api.session.get("post_flags", params=params), expect=list)
 
-    def create(self, post_id, reason_name, parent_id) -> PostFlag:
-        """
-        post_flag[post_id] The ID of the flagged post.
-        post_flag[reason_name] The reason submitted along with the flag, eg. "inferior".
-        post_flag[parent_id] ID of the superior post when flagging an image as inferior.
-        """
+    def create(self, post_id: int, reason_name: str, parent_id: Optional[int] = None) -> PostFlag:
+        if reason_name == "inferior" and parent_id is None:
+            raise ValueError
+        params = {
+            "post_flag[post_id]": post_id,
+            "post_flag[reason_name]": reason_name,
+            "post_flag[parent_id]": parent_id,
+        }
+        return PostFlag.from_response(self._api.session.post("post_flags", params=params), expect=dict)
 
 
 def _list_posts(
