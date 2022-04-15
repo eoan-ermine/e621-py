@@ -1,8 +1,9 @@
-from typing import List, Dict, Any, Type, Union, overload
-from typing_extensions import Self
+from typing import Any, Dict, List, Type, Union, overload
+
 import pydantic
-from backports.cached_property import cached_property
 import requests
+from backports.cached_property import cached_property
+from typing_extensions import Self
 
 
 class BaseModel(pydantic.BaseModel):
@@ -20,11 +21,11 @@ class BaseModel(pydantic.BaseModel):
 
     @classmethod
     @overload
-    def from_response(cls, response: requests.Response, expect: Type[dict]) -> Self:
+    def from_response(cls, response: requests.Response, expect: Type[dict] = dict) -> Self:
         ...
 
     @classmethod
-    def from_response(cls, response: requests.Response, expect: Union[Type[dict], Type[list]]):
+    def from_response(cls, response: requests.Response, expect: Union[Type[dict], Type[list]] = dict):
         json = response.json()
         # {"post": {<post_info>}} or {"posts": [{<post_info>}, ...]}
         if isinstance(json, dict) and len(cls.schema()["required"]) > len(json) and len(json) == 1:

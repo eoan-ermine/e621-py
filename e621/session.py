@@ -1,5 +1,7 @@
-from typing import Any, Dict, List, Optional, Tuple, TypeAlias
+from typing import Any, Dict, List, Optional, Tuple
+
 import requests
+from typing_extensions import TypeAlias
 
 Username: TypeAlias = str
 ApiKey: TypeAlias = str

@@ -1,4 +1,4 @@
-from .e621 import e621
+from .api import E621API
 
 __author__ = "PatriotRossii"
 __version__ = "0.0.2"
