@@ -187,7 +187,12 @@ class PostFlags(BaseEndpoint[PostFlag]):
         )
 
 
-class Users(BaseEndpoint[User]):
+class EmptySearcher(BaseEndpoint[Model]):
+    def search(self, limit: Optional[int] = None, page: int = 1, ignore_pagination: bool = False) -> List[Model]:
+        return self._default_search({}, limit, page, ignore_pagination)
+
+
+class Users(EmptySearcher[User]):
     _model = User
 
     @cached_property
@@ -198,14 +203,6 @@ class Users(BaseEndpoint[User]):
 
     def get(self, user_identifier: Union[UserID, UserName]) -> User:
         return self._default_get(user_identifier)
-
-    def search(self, limit: Optional[int] = None, page: int = 1, ignore_pagination: bool = False) -> List[User]:
-        return self._default_search({}, limit, page, ignore_pagination)
-
-
-class EmptySearcher(BaseEndpoint[Model]):
-    def search(self, limit: Optional[int] = None, page: int = 1, ignore_pagination: bool = False) -> List[Model]:
-        return self._default_search({}, limit, page, ignore_pagination)
 
 
 class PostVersions(EmptySearcher[PostVersion]):
@@ -230,14 +227,26 @@ class WikiPageVersions(EmptySearcher[WikiPageVersion]):
 
 class Artists(EmptySearcher[Artist]):
     _model = Artist
+    # search[any_name_matches]
+    # search[url_matches]
+    # search[creator_name]
+    # search[is_active]
+    # search[has_tag]
+    # search[is_linked]=0/1
+    # search[order]=updated_at/name/created_at/post_count
 
 
 class ArtistVersions(EmptySearcher[ArtistVersion]):
     _model = ArtistVersion
+    # search[updater_name]
+    # search[name]
 
 
 class TagTypeVersions(EmptySearcher[TagTypeVersion]):
     _model = TagTypeVersion
+    # search[tag]
+    # search[user_name]
+    # search[user_id]
 
 
 class TagImplications(EmptySearcher[TagImplication]):
