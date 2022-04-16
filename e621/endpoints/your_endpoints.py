@@ -1,18 +1,15 @@
 from enum import Enum
-from io import FileIO
+from io import BufferedReader
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, BinaryIO, Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 from typing_extensions import TypeAlias
 
 from ..models import AuthenticatedUser, EnrichedPost, PostFlag, User
 from .endpoints import BaseEndpoint
 
-if TYPE_CHECKING:
-    from ..api import E621API
 
-
-class Rating(Enum):
+class Rating(str, Enum):
     SAFE = "s"
     QUESTIONABLE = "q"
     EXPLICIT = "e"
@@ -24,23 +21,28 @@ UserID: TypeAlias = int
 UserName: TypeAlias = str
 
 
-class Posts(BaseEndpoint):
-    def get(self, post_id: int) -> EnrichedPost:
-        return EnrichedPost.from_response(self._api.session.get(f"posts/{post_id}"))
+class Posts(BaseEndpoint[EnrichedPost]):
+    _model = EnrichedPost
+    _root_entity_name = _url = "posts"
 
-    def list(
+    def get(self, post_id: int) -> EnrichedPost:
+        return self._default_get(post_id)
+
+    def search(
         self,
         tags: str = "",
         limit: Optional[int] = None,
         page: int = 1,
         ignore_pagination: bool = False,
     ) -> List[EnrichedPost]:
-        return _list_posts(self._api, "posts", {"tags": tags, "limit": limit, "page": page}, ignore_pagination)
+        posts = self._default_search({"tags": tags}, limit, page, ignore_pagination)
+        # FIXME: this works if the person put the tag correctly, but doesn't work with tag aliases
+        return [p for p in posts if not self._api.blacklist.intersects(p.all_tags)]
 
     def create(
         self,
         tag_string: str,
-        file: Union[Path, FileIO, HttpUrl],
+        file: Union[HttpUrl, Path, BufferedReader],
         rating: Rating,
         sources: List[HttpUrl],
         description: str,
@@ -60,15 +62,20 @@ class Posts(BaseEndpoint):
             "upload[as_pending]": as_pending,
         }
         files = {}
-        if isinstance(file, Path):
-            files["upload[file]"] = file.open("rb")
-        elif isinstance(file, BinaryIO):
-            files["upload[file]"] = file
-        elif isinstance(file, HttpUrl):
+        openfile = None
+        if isinstance(file, HttpUrl):
             params["upload[direct_url]"] = file
-        r = self._api.session.post("posts", params=params, files=files)
-
-        return self.get(r.json()["post_id"])
+        elif isinstance(file, Path):
+            files["upload[file]"] = openfile = file.open("rb")
+        else:
+            files["upload[file]"] = file
+        try:
+            r = self._api.session.post("posts", params=params, files=files)
+            post = self.get(r.json()["post_id"])
+            return post
+        finally:
+            if openfile is not None:
+                openfile.close()
 
     def update(
         self,
@@ -86,12 +93,8 @@ class Posts(BaseEndpoint):
         edit_reason: Optional[StringWithInlineDText] = None,
         has_embedded_notes: Optional[bool] = None,
     ) -> None:
-        # Two simple if-statements would be enough but pylance is picky so
-        # we resort to this method for full typehint support.
-        normalized_rating = rating if rating is None else rating.value
-        normalized_old_rating = old_rating if old_rating is None else old_rating.value
-        self._api.session.patch(
-            f"posts/{post_id}",
+        self._default_update(
+            post_id,
             params={
                 "post[tag_string_diff]": tag_string_diff,
                 "post[source_diff]": source_diff,
@@ -99,8 +102,8 @@ class Posts(BaseEndpoint):
                 "post[old_parent_id]": old_parent_id,
                 "post[description]": description,
                 "post[old_description]": old_description,
-                "post[rating]": normalized_rating,
-                "post[old_rating]": normalized_old_rating,
+                "post[rating]": rating if rating is None else rating.value,
+                "post[old_rating]": old_rating if old_rating is None else old_rating.value,
                 "post[is_rating_locked]": is_rating_locked,
                 "post[is_note_locked]": is_note_locked,
                 "post[edit_reason]": edit_reason,
@@ -109,64 +112,73 @@ class Posts(BaseEndpoint):
         )
 
 
-class Favorites(BaseEndpoint):
-    def list(self, user_id: Optional[int] = None, limit: Optional[int] = None, page: int = 1) -> List[EnrichedPost]:
-        return _list_posts(self._api, "favorites", {"user_id": user_id, "limit": limit, "page": page})
+class Favorites(BaseEndpoint[EnrichedPost]):
+    _model = EnrichedPost
+    _root_entity_name = "posts"
+    _url = "favorites"
+
+    def search(
+        self,
+        user_id: Optional[int] = None,
+        limit: Optional[int] = None,
+        page: int = 1,
+        ignore_pagination: bool = False,
+    ) -> List[EnrichedPost]:
+        return self._default_search({"user_id": user_id}, limit, page, ignore_pagination)
 
     def create(self, post_id: int) -> EnrichedPost:
-        return EnrichedPost.from_response(self._api.session.post("favorites", params={"post_id": post_id}))
+        return self._default_create({"post_id": post_id})
 
     def delete(self, post_id: int) -> None:
-        self._api.session.delete(f"favorites/{post_id}")
+        self._default_delete(post_id)
 
 
-class PostFlags(BaseEndpoint):
-    def list(
+class PostFlags(BaseEndpoint[PostFlag]):
+    _model = PostFlag
+    _root_entity_name = _url = "post_flags"
+
+    def search(
         self,
         post_id: Optional[int] = None,
         creator_id: Optional[int] = None,
         creator_name: Optional[str] = None,
+        limit: Optional[int] = None,
+        page: int = 1,
+        ignore_pagination: bool = False,
     ) -> List[PostFlag]:
-        params = {
-            "search[post_id]": post_id,
-            "search[creator_id]": creator_id,
-            "search[creator_name]": creator_name,
-        }
-        return PostFlag.from_response(self._api.session.get("post_flags", params=params), expect=list)
+        return self._default_search(
+            {
+                "search[post_id]": post_id,
+                "search[creator_id]": creator_id,
+                "search[creator_name]": creator_name,
+            },
+            limit,
+            page,
+            ignore_pagination,
+        )
 
     def create(self, post_id: int, reason_name: str, parent_id: Optional[int] = None) -> PostFlag:
         if reason_name == "inferior" and parent_id is None:
-            raise ValueError
-        params = {
-            "post_flag[post_id]": post_id,
-            "post_flag[reason_name]": reason_name,
-            "post_flag[parent_id]": parent_id,
-        }
-        return PostFlag.from_response(self._api.session.post("post_flags", params=params))
+            raise ValueError("parent_id is required for flags with 'inferior' reason")
+        return self._default_create(
+            {
+                "post_flag[post_id]": post_id,
+                "post_flag[reason_name]": reason_name,
+                "post_flag[parent_id]": parent_id,
+            }
+        )
 
 
-class Users(BaseEndpoint):
+class Users(BaseEndpoint[User]):
+    _model = User
+    _root_entity_name = _url = "users"
+
     @property
     def me(self) -> AuthenticatedUser:
         return AuthenticatedUser.from_response(self._api.session.get(f"users/{self._api.username}"))
 
     def get(self, user_identifier: Union[UserID, UserName]) -> User:
-        return User.from_response(self._api.session.get(f"users/{user_identifier}"))
+        return self._default_get(user_identifier)
 
-    def list(self, limit: Optional[int] = None, page: int = 1) -> List[User]:
-        return User.from_response(self._api.session.get("users", params={"limit": limit, "page": page}), expect=list)
-
-
-def _list_posts(
-    api: "E621API",
-    endpoint_name: str,
-    params: Dict[str, Any],
-    ignore_pagination: bool = False,
-) -> List[EnrichedPost]:
-    if ignore_pagination:
-        posts = EnrichedPost.from_list(api.session.paginated_get(endpoint_name, params, root_entity_name="posts"))
-    else:
-        posts = EnrichedPost.from_response(api.session.get(endpoint_name, params=params), expect=list)
-    # FIXME: this works with single tag on the blacklist but e621 supports tag groups in blacklists
-    # FIXME: this works if the person put the tag correctly, but doesn't work with tag aliases
-    return [p for p in posts if not api.blacklist.intersects(p.all_tags)]
+    def search(self, limit: Optional[int] = None, page: int = 1, ignore_pagination: bool = False) -> List[User]:
+        return self._default_search({}, limit, page, ignore_pagination)

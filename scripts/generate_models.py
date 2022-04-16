@@ -79,7 +79,6 @@ def main(
         print("Normalizing")
 
     models_source = stdout.replace("TagAliase", "TagAlias")
-    raw_models = models_source[models_source.index("class") :]
     model_class_names = [repr(n) for n in RE_CLASSNAME.findall(models_source)]
     all_list = f"__all__ = {', '.join(model_class_names)}\n\n\n"
     models_source += all_list

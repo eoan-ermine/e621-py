@@ -37,11 +37,12 @@ class SimpleSession(requests.Session):
         """Performs a paginated GET request to the given endpoint, returning a list of all the results"""
         results: List[Dict[Any, Any]] = []
         while True:
-            r = self.get(endpoint, params, *args, **kwargs)
-            if root_entity_name is not None:
-                chunk = r.json()[root_entity_name]
+            json = self.get(endpoint, params, *args, **kwargs).json()
+            chunk: List[Dict[Any, Any]]
+            if root_entity_name is not None and isinstance(json, dict):
+                chunk = json[root_entity_name]
             else:
-                chunk = r.json()
+                chunk = json
             params["page"] += 1
             params["limit"] -= len(chunk)
             results.extend(chunk)

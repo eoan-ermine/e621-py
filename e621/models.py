@@ -19,7 +19,7 @@ class _HasPostIdsAndE621API(Protocol):
 class _PostsGetterMixin:
     @cached_property
     def posts(self: _HasPostIdsAndE621API) -> List[EnrichedPost]:
-        return self._e6api.posts.list(tags=f"id:{','.join(map(str, self.post_ids))}")
+        return self._e6api.posts.search(tags=f"id:{','.join(map(str, self.post_ids))}")
 
 
 class EnrichedPost(Post):
