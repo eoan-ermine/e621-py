@@ -1,7 +1,7 @@
 from typing import List, Optional, Literal, Union
 from enum import Enum, IntEnum
 
-from e621.models import EnrichedPool, Note, Tag, TagAlias
+from ..models import EnrichedPool, Note, Tag, TagAlias
 
 from .endpoints import BaseEndpoint
 
@@ -25,14 +25,14 @@ class TagCategory(IntEnum):
 PageNumber = int
 
 
-class SearchOffsetRelation(Enum):
+class OffsetRelation(Enum):
 	BEFORE = "b"
 	AFTER = "a"
 
 
-class SearchOffset:
-	def __init__(self, relation: SearchOffsetRelation, id: int):
-		self.relation: SearchOffsetRelation = relation
+class PageOffset:
+	def __init__(self, relation: OffsetRelation, id: int):
+		self.relation: OffsetRelation = relation
 		self.id: int = id
 
 	def __str__(self):
@@ -52,7 +52,7 @@ class Tags(BaseEndpoint):
         has_wiki: Optional[bool] = None,
         has_artist: Optional[bool] = None,
         limit: Optional[int] = None,
-        page: Union[SearchOffset, PageNumber, None] = None,
+        page: Union[PageOffset, PageNumber, None] = None,
     ) -> List[Tag]:
         raw_tags = self._api.session.get(
             "tags",
@@ -64,7 +64,7 @@ class Tags(BaseEndpoint):
                 "search[has_wiki]": has_wiki,
                 "search[has_artist]": has_artist,
                 "limit": limit,
-                "page": str(page) if isinstance(page, SearchOffset) else page,
+                "page": str(page) if isinstance(page, PageOffset) else page,
             },
         ).json()
         return [Tag(**tag) for tag in raw_tags] if isinstance(raw_tags, list) else []
@@ -82,7 +82,7 @@ class TagAliases(BaseEndpoint):
         antecedent_tag_category: Optional[TagCategory] = None,
         consequent_tag_category: Optional[TagCategory] = None,
         limit: Optional[int] = None,
-        page: Union[SearchOffset, PageNumber, None] = None,
+        page: Union[PageOffset, PageNumber, None] = None,
     ) -> List[TagAlias]:
         raw_tag_aliases = self._api.session.get(
             "tag_aliases",
