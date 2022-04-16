@@ -1,3 +1,4 @@
+import inspect
 from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Type, TypeVar
 
 from e621.util import camel_to_snake
@@ -42,6 +43,14 @@ class BaseEndpoint(Generic[Model]):
             )
         else:
             return self._model.from_response(self._api.session.get(self._url, params=params), self._api, expect=list)
+
+    def _magical_search(self, limit, page, ignore_pagination, *args: Any) -> List[Model]:
+        return self._default_search(
+            {f"search[{argname}]": arg for argname, arg in zip(inspect.signature(self.search).parameters, args)},
+            limit,
+            page,
+            ignore_pagination,
+        )
 
     def _default_create(self, params: Dict[str, Any], files: Optional[Dict[str, Any]] = None) -> Model:
         return self._model.from_response(self._api.session.post(self._url, params=params, files=files), self._api)
