@@ -51,7 +51,7 @@ class Posts(BaseEndpoint):
     ) -> EnrichedPost:
         params = {
             "upload[tag_string]": tag_string,
-            "upload[rating]": rating,
+            "upload[rating]": rating.value,
             "upload[sources]": ",".join(sources),
             "upload[description]": description,
             "upload[parent_id]": parent_id,
