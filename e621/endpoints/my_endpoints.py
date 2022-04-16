@@ -1,14 +1,14 @@
-from typing import List, Optional, Literal, Union
+from dataclasses import dataclass
 from enum import Enum, IntEnum
+from typing import List, Literal, Optional, Union
 
 from ..models import EnrichedPool, Note, Tag, TagAlias
-
 from .endpoints import BaseEndpoint
 
 
 class PoolCategory(str, Enum):
-	SERIES = "series"
-	COLLECTION = "collection"
+    SERIES = "series"
+    COLLECTION = "collection"
 
 
 class TagCategory(IntEnum):
@@ -19,24 +19,24 @@ class TagCategory(IntEnum):
     SPECIES = 5
     INVALID = 6
     META = 7
-    LORE = 8	
+    LORE = 8
 
 
 PageNumber = int
 
 
-class OffsetRelation(Enum):
-	BEFORE = "b"
-	AFTER = "a"
+class OffsetRelation(str, Enum):
+    BEFORE = "b"
+    AFTER = "a"
 
 
+@dataclass
 class PageOffset:
-	def __init__(self, relation: OffsetRelation, id: int):
-		self.relation: OffsetRelation = relation
-		self.id: int = id
+    relation: OffsetRelation
+    id: int
 
-	def __str__(self):
-		return f"{self.relation}{self.id}"
+    def __str__(self) -> str:
+        return f"{self.relation}{self.id}"
 
 
 class Tags(BaseEndpoint):
