@@ -26,7 +26,12 @@ class BaseModel(pydantic.BaseModel):
 
     @classmethod
     @overload
-    def from_response(cls, response: requests.Response, _e6api: "E621", expect: Type[List[Any]] = dict) -> List[Self]:
+    def from_response(
+        cls,
+        response: requests.Response,
+        _e6api: "E621",
+        expect: Type[List[Any]] = dict,  # type: ignore
+    ) -> List[Self]:
         ...
 
     @classmethod

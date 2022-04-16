@@ -5,9 +5,29 @@ from typing import List, Optional, Union
 from backports.cached_property import cached_property
 from typing_extensions import TypeAlias
 
-from ..models import AuthenticatedUser, EnrichedPost, PostFlag, User
+from ..models import (
+    Artist,
+    ArtistVersion,
+    AuthenticatedUser,
+    Blip,
+    BulkUpdateRequest,
+    EnrichedPost,
+    ForumTopic,
+    NoteVersion,
+    PostApproval,
+    PostFlag,
+    PostSet,
+    PostVersion,
+    TagImplication,
+    TagTypeVersion,
+    Takedown,
+    User,
+    UserFeedback,
+    WikiPage,
+    WikiPageVersion,
+)
 from ..util import StrEnum
-from .endpoints import BaseEndpoint
+from .endpoints import BaseEndpoint, Model
 
 
 class Rating(StrEnum):
@@ -181,3 +201,68 @@ class Users(BaseEndpoint[User]):
 
     def search(self, limit: Optional[int] = None, page: int = 1, ignore_pagination: bool = False) -> List[User]:
         return self._default_search({}, limit, page, ignore_pagination)
+
+
+class EmptySearcher(BaseEndpoint[Model]):
+    def search(self, limit: Optional[int] = None, page: int = 1, ignore_pagination: bool = False) -> List[Model]:
+        return self._default_search({}, limit, page, ignore_pagination)
+
+
+class PostVersions(EmptySearcher[PostVersion]):
+    _model = PostVersion
+
+
+class PostApprovals(EmptySearcher[PostApproval]):
+    _model = PostApproval
+
+
+class NoteVersions(EmptySearcher[NoteVersion]):
+    _model = NoteVersion
+
+
+class WikiPages(EmptySearcher[WikiPage]):
+    _model = WikiPage
+
+
+class WikiPageVersions(EmptySearcher[WikiPageVersion]):
+    _model = WikiPageVersion
+
+
+class Artists(EmptySearcher[Artist]):
+    _model = Artist
+
+
+class ArtistVersions(EmptySearcher[ArtistVersion]):
+    _model = ArtistVersion
+
+
+class TagTypeVersions(EmptySearcher[TagTypeVersion]):
+    _model = TagTypeVersion
+
+
+class TagImplications(EmptySearcher[TagImplication]):
+    _model = TagImplication
+
+
+class BulkUpdateRequests(EmptySearcher[BulkUpdateRequest]):
+    _model = BulkUpdateRequest
+
+
+class Blips(EmptySearcher[Blip]):
+    _model = Blip
+
+
+class Takedowns(EmptySearcher[Takedown]):
+    _model = Takedown
+
+
+class UserFeedbacks(EmptySearcher[UserFeedback]):
+    _model = UserFeedback
+
+
+class ForumTopics(EmptySearcher[ForumTopic]):
+    _model = ForumTopic
+
+
+class PostSets(EmptySearcher[PostSet]):
+    _model = PostSet
