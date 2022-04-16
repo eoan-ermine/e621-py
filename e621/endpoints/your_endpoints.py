@@ -54,7 +54,7 @@ class Posts(BaseEndpoint[EnrichedPost]):
     ) -> EnrichedPost:
         params = {
             "upload[tag_string]": tag_string,
-            "upload[rating]": rating.value,
+            "upload[rating]": rating,
             "upload[sources]": ",".join(sources),
             "upload[description]": description,
             "upload[parent_id]": parent_id,
@@ -103,8 +103,8 @@ class Posts(BaseEndpoint[EnrichedPost]):
                 "post[old_parent_id]": old_parent_id,
                 "post[description]": description,
                 "post[old_description]": old_description,
-                "post[rating]": rating if rating is None else rating.value,
-                "post[old_rating]": old_rating if old_rating is None else old_rating.value,
+                "post[rating]": rating,
+                "post[old_rating]": old_rating,
                 "post[is_rating_locked]": is_rating_locked,
                 "post[is_note_locked]": is_note_locked,
                 "post[edit_reason]": edit_reason,
