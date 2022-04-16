@@ -10,24 +10,24 @@ if TYPE_CHECKING:
 
 
 class BaseModel(pydantic.BaseModel):
+    _e6api: "E621API"
+
     class Config:
         keep_untouched = (cached_property,)  # type: ignore
 
     @classmethod
-    def from_list(cls, list: List[Dict[str, Any]], _e6api: Optional["E621API"] = None) -> List[Self]:
-        return [cls(**obj, _e6api=_e6api) for obj in list]
+    def from_list(cls, list: List[Dict[str, Any]], api: "E621API") -> List[Self]:
+        return [cls(**obj, _e6api=api) for obj in list]
 
     @classmethod
     @overload
-    def from_response(
-        cls, response: requests.Response, _e6api: Optional["E621API"] = None, expect: Type[Dict[Any, Any]] = dict
-    ) -> Self:
+    def from_response(cls, response: requests.Response, _e6api: "E621API", expect: Type[Dict[Any, Any]] = dict) -> Self:
         ...
 
     @classmethod
     @overload
     def from_response(
-        cls, response: requests.Response, _e6api: Optional["E621API"] = None, expect: Type[List[Any]] = dict
+        cls, response: requests.Response, _e6api: "E621API", expect: Type[List[Any]] = dict
     ) -> List[Self]:
         ...
 
@@ -35,7 +35,7 @@ class BaseModel(pydantic.BaseModel):
     def from_response(
         cls,
         response: requests.Response,
-        _e6api: Optional["E621API"] = None,
+        api: "E621API",
         expect: Union[Type[Dict[Any, Any]], Type[List[Any]]] = dict,
     ) -> Union[Self, List[Self]]:
         json: Union[Dict[Any, Any], List[Any]] = response.json()
@@ -44,8 +44,8 @@ class BaseModel(pydantic.BaseModel):
             json = json[list(json)[0]]
 
         if isinstance(json, list) and expect is list:
-            return cls.from_list(json, _e6api)
+            return cls.from_list(json, api)
         elif isinstance(json, dict) and expect is dict:
-            return cls(**json, _e6api=_e6api)
+            return cls(**json, _e6api=api)
         else:
             raise TypeError(f"response.json() returned an unexpected object: {json}")

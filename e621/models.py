@@ -38,11 +38,11 @@ class EnrichedPost(Post):
 
 
 class EnrichedPool(Pool, _PostsGetterMixin):
-    _e6api: "E621API"
+    pass
 
 
 class EnrichedPostSet(PostSet, _PostsGetterMixin):
-    _e6api: "E621API"
+    pass
 
 
 class AuthenticatedUser(User):

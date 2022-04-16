@@ -7,9 +7,10 @@ from typing_extensions import TypeAlias
 
 from ..models import AuthenticatedUser, EnrichedPost, PostFlag, User
 from .endpoints import BaseEndpoint
+from ..util import StrEnum
 
 
-class Rating(str, Enum):
+class Rating(StrEnum):
     SAFE = "s"
     QUESTIONABLE = "q"
     EXPLICIT = "e"
@@ -175,7 +176,7 @@ class Users(BaseEndpoint[User]):
 
     @property
     def me(self) -> AuthenticatedUser:
-        return AuthenticatedUser.from_response(self._api.session.get(f"users/{self._api.username}"))
+        return AuthenticatedUser.from_response(self._api.session.get(f"users/{self._api.username}"), self._api)
 
     def get(self, user_identifier: Union[UserID, UserName]) -> User:
         return self._default_get(user_identifier)
