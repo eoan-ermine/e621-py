@@ -1,13 +1,13 @@
-from enum import Enum
 from io import BufferedReader
 from pathlib import Path
 from typing import List, Optional, Union
 
+from backports.cached_property import cached_property
 from typing_extensions import TypeAlias
 
 from ..models import AuthenticatedUser, EnrichedPost, PostFlag, User
-from .endpoints import BaseEndpoint
 from ..util import StrEnum
+from .endpoints import BaseEndpoint
 
 
 class Rating(StrEnum):
@@ -37,7 +37,7 @@ class Posts(BaseEndpoint[EnrichedPost]):
     ) -> List[EnrichedPost]:
         posts = self._default_search({"tags": tags}, limit, page, ignore_pagination)
         # FIXME: this works if the person put the tag correctly, but doesn't work with tag aliases
-        return [p for p in posts if not self._api.blacklist.intersects(p.all_tags)]
+        return [p for p in posts if not self._api.users.me.blacklist.intersects(p.all_tags)]
 
     def create(
         self,
@@ -170,8 +170,10 @@ class PostFlags(BaseEndpoint[PostFlag]):
 class Users(BaseEndpoint[User]):
     _model = User
 
-    @property
+    @cached_property
     def me(self) -> AuthenticatedUser:
+        if self._api.username is None or self._api.api_key is None:
+            raise ValueError("Cannot access E621API.user for a non-authenticated user")
         return AuthenticatedUser.from_response(self._api.session.get(f"users/{self._api.username}"), self._api)
 
     def get(self, user_identifier: Union[UserID, UserName]) -> User:

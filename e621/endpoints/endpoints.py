@@ -5,7 +5,7 @@ from e621.util import camel_to_snake
 from ..base_model import BaseModel
 
 if TYPE_CHECKING:
-    from ..api import E621API
+    from ..api import E621
 
 
 Model = TypeVar("Model", bound=BaseModel)
@@ -16,7 +16,7 @@ class BaseEndpoint(Generic[Model]):
     _root_entity_name: str
     _url: str
 
-    def __init__(self, api: "E621API") -> None:
+    def __init__(self, api: "E621") -> None:
         self._api = api
 
     def __init_subclass__(cls) -> None:

@@ -6,36 +6,34 @@ from backports.cached_property import cached_property
 from typing_extensions import Self
 
 if TYPE_CHECKING:
-    from .api import E621API
+    from .api import E621
 
 
 class BaseModel(pydantic.BaseModel):
-    _e6api: "E621API"
+    _e6api: "E621"
 
     class Config:
         keep_untouched = (cached_property,)  # type: ignore
 
     @classmethod
-    def from_list(cls, list: List[Dict[str, Any]], api: "E621API") -> List[Self]:
+    def from_list(cls, list: List[Dict[str, Any]], api: "E621") -> List[Self]:
         return [cls(**obj, _e6api=api) for obj in list]
 
     @classmethod
     @overload
-    def from_response(cls, response: requests.Response, _e6api: "E621API", expect: Type[Dict[Any, Any]] = dict) -> Self:
+    def from_response(cls, response: requests.Response, _e6api: "E621", expect: Type[Dict[Any, Any]] = dict) -> Self:
         ...
 
     @classmethod
     @overload
-    def from_response(
-        cls, response: requests.Response, _e6api: "E621API", expect: Type[List[Any]] = dict
-    ) -> List[Self]:
+    def from_response(cls, response: requests.Response, _e6api: "E621", expect: Type[List[Any]] = dict) -> List[Self]:
         ...
 
     @classmethod
     def from_response(
         cls,
         response: requests.Response,
-        api: "E621API",
+        api: "E621",
         expect: Union[Type[Dict[Any, Any]], Type[List[Any]]] = dict,
     ) -> Union[Self, List[Self]]:
         json: Union[Dict[Any, Any], List[Any]] = response.json()

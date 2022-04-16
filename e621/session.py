@@ -12,7 +12,7 @@ class SimpleSession(requests.Session):
     and always makes requests to base_url
     """
 
-    def __init__(self, base_url: str, timeout: int, auth: Optional[Tuple[Username, ApiKey]] = None):
+    def __init__(self, base_url: str, timeout: int, auth: Optional[Tuple[Username, ApiKey]] = None) -> None:
         super().__init__()
         self.base_url = base_url
         self.timeout = timeout
