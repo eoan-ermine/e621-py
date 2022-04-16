@@ -1,28 +1,61 @@
-from typing import List, Optional
+from typing import List, Optional, Literal, Union
+from enum import Enum, IntEnum
 
 from e621.models import EnrichedPool, Note, Tag, TagAlias
 
 from .endpoints import BaseEndpoint
 
 
+class PoolCategory(str, Enum):
+	SERIES = "series"
+	COLLECTION = "collection"
+
+
+class TagCategory(IntEnum):
+    GENERAL = 0
+    ARTIST = 1
+    COPYRIGHT = 3  # this is not a mistake. They really do skip number 2
+    CHARACTER = 4
+    SPECIES = 5
+    INVALID = 6
+    META = 7
+    LORE = 8	
+
+
+PageNumber = int
+
+
+class SearchOffsetRelation(Enum):
+	BEFORE = "b"
+	AFTER = "a"
+
+
+class SearchOffset:
+	def __init__(self, relation: SearchOffsetRelation, id: int):
+		self.relation: SearchOffsetRelation = relation
+		self.id: int = id
+
+	def __str__(self):
+		return f"{self.relation}{self.id}"
+
+
 class Tags(BaseEndpoint):
     def get(self, tag_id: int) -> Tag:
-        return Tag(**self._api.session.request("GET", f"tags/{tag_id}.json").json())
+        return Tag(**self._api.session.get(f"tags/{tag_id}").json())
 
     def search(
         self,
         name_matches: Optional[str] = None,
-        category: Optional[str] = None,
-        order: Optional[str] = None,
+        category: Optional[TagCategory] = None,
+        order: Optional[Literal["date", "count", "name"]] = None,
         hide_empty: Optional[bool] = None,
         has_wiki: Optional[bool] = None,
         has_artist: Optional[bool] = None,
         limit: Optional[int] = None,
-        page: Optional[str] = None,
+        page: Union[SearchOffset, PageNumber, None] = None,
     ) -> List[Tag]:
-        raw_tags = self._api.session.request(
-            "GET",
-            "tags.json",
+        raw_tags = self._api.session.get(
+            "tags",
             params={
                 "search[name_matches]": name_matches,
                 "search[category]": category,
@@ -31,29 +64,28 @@ class Tags(BaseEndpoint):
                 "search[has_wiki]": has_wiki,
                 "search[has_artist]": has_artist,
                 "limit": limit,
-                "page": page,
+                "page": str(page) if isinstance(page, SearchOffset) else page,
             },
         ).json()
-        return [Tag(**tag) for tag in raw_tags]
+        return [Tag(**tag) for tag in raw_tags] if isinstance(raw_tags, list) else []
 
 
 class TagAliases(BaseEndpoint):
     def get(self, tag_alias_id: int) -> TagAlias:
-        return TagAliases(**self._api.session.request("GET", f"tag_aliases/{tag_alias_id}.json").json())
+        return TagAlias(**self._api.session.get(f"tag_aliases/{tag_alias_id}").json())
 
     def search(
         self,
         name_matches: Optional[str] = None,
         status: Optional[str] = None,
-        order: Optional[str] = None,
-        antecedent_tag_category: Optional[str] = None,
-        consequent_tag_category: Optional[str] = None,
+        order: Optional[Literal["status", "created_at", "updated_at", "name", "tag_count"]] = None,
+        antecedent_tag_category: Optional[TagCategory] = None,
+        consequent_tag_category: Optional[TagCategory] = None,
         limit: Optional[int] = None,
-        page: Optional[str] = None,
+        page: Union[SearchOffset, PageNumber, None] = None,
     ) -> List[TagAlias]:
-        raw_tag_aliases = self._api.session.request(
-            "GET",
-            "tag_aliases.json",
+        raw_tag_aliases = self._api.session.get(
+            "tag_aliases",
             params={
                 "search[name_matches]": name_matches,
                 "search[status]": status,
@@ -64,12 +96,12 @@ class TagAliases(BaseEndpoint):
                 "page": page,
             },
         ).json()
-        return [TagAlias(**tag_alias) for tag_alias in raw_tag_aliases]
+        return [TagAlias(**tag_alias) for tag_alias in raw_tag_aliases] if isinstance(raw_tag_aliases, list) else []
 
 
 class Notes(BaseEndpoint):
     def get(self, note_id: int) -> Note:
-        return Note(**self._api.session.request("GET", f"notes/{note_id}.json").json())
+        return Note(**self._api.session.get(f"notes/{note_id}").json())
 
     def search(
         self,
@@ -81,9 +113,8 @@ class Notes(BaseEndpoint):
         is_active: Optional[bool] = None,
         limit: Optional[int] = None,
     ) -> List[Note]:
-        raw_notes = self._api.session.request(
-            "GET",
-            "notes.json",
+        raw_notes = self._api.session.get(
+            "notes",
             params={
                 "search[body_matches]": body_matches,
                 "search[post_id]": post_id,
@@ -94,13 +125,12 @@ class Notes(BaseEndpoint):
                 "limit": limit,
             },
         ).json()
-        return [Note(**note) for note in raw_notes]
+        return [Note(**note) for note in raw_notes] if isinstance(raw_notes, list) else []
 
     def create(self, post_id: int, x: int, y: int, width: int, height: int, body: str) -> Note:
         return Note(
-            **self._api.session.request(
-                "POST",
-                "notes.json",
+            **self._api.session.post(
+                "notes",
                 params={
                     "note[post_id]": post_id,
                     "note[x]": x,
@@ -112,11 +142,10 @@ class Notes(BaseEndpoint):
             ).json()
         )
 
-    def update(self, note_id: int, x: int, y: int, width: int, height: int, body: str) -> Note:
+    def update(self, note_id: int, post_id: int, x: int, y: int, width: int, height: int, body: str) -> Note:
         return Note(
-            **self._api.session.request(
-                "PUT",
-                f"notes/{note_id}.json",
+            **self._api.session.put(
+                f"notes/{note_id}",
                 params={
                     "note[post_id]": post_id,
                     "note[x]": x,
@@ -129,35 +158,34 @@ class Notes(BaseEndpoint):
         )
 
     def delete(self, note_id: int) -> None:
-        self._api.session.request("DELETE", f"notes/{note_id}.json")
+        self._api.session.delete("notes/{note_id}")
 
     def revert(self, note_id: int, version_id: int) -> None:
-        self._api.session.request("PUT", f"notes/{note_id}/revert.json", params={"version_id": version_id})
+        self._api.session.put(f"notes/{note_id}/revert", params={"version_id": version_id})
 
 
 class Pools(BaseEndpoint):
     def get(self, pool_id: int) -> EnrichedPool:
-        return EnrichedPool(**self._api.session.request("GET", f"pools/{pool_id}.json").json())
+        return EnrichedPool(**self._api.session.get(f"pools/{pool_id}").json())
 
     def search(
         self,
         name_matches: Optional[str] = None,
-        id: Optional[int] = None,
+        id: Union[int, List[int], None] = None,
         description_matches: Optional[str] = None,
         creator_name: Optional[str] = None,
         creator_id: Optional[int] = None,
         is_active: Optional[bool] = None,
         is_deleted: Optional[bool] = None,
-        category: Optional[str] = None,
-        order: Optional[str] = None,
+        category: Optional[PoolCategory] = None,
+        order: Optional[Literal["name", "created_at", "updated_at", "post_count"]] = None,
         limit: Optional[int] = None,
     ) -> List[EnrichedPool]:
-        raw_pools = self._api.session.request(
-            "GET",
-            "pools.json",
+        raw_pools = self._api.session.get(
+            "pools",
             params={
                 "search[name_matches]": name_matches,
-                "search[id]": id,
+                "search[id]": ",".join(map(str, id)) if isinstance(id, list) else id,
                 "search[description_matches]": description_matches,
                 "search[creator_name]": creator_name,
                 "search[creator_id]": creator_id,
@@ -171,12 +199,11 @@ class Pools(BaseEndpoint):
         return [EnrichedPool(**pool) for pool in raw_pools]
 
     def create(
-        self, name: str, description: str, category: Optional[str] = None, is_locked: Optional[bool] = None
+        self, name: str, description: str, category: Optional[PoolCategory] = None, is_locked: Optional[bool] = None
     ) -> EnrichedPool:
         return EnrichedPool(
-            **self._api.session.request(
-                "POST",
-                "pools.json",
+            **self._api.session.post(
+                "pools",
                 params={
                     "pool[name]": name,
                     "pool[description]": description,
@@ -193,16 +220,15 @@ class Pools(BaseEndpoint):
         description: Optional[str] = None,
         post_ids: Optional[List[int]] = None,
         is_active: Optional[bool] = None,
-        category: Optional[str] = None,
+        category: Optional[PoolCategory] = None,
     ) -> EnrichedPool:
         return EnrichedPool(
-            **self._api.session.request(
-                "PUT",
-                f"pools/{pool_id}.json",
+            **self._api.session.put(
+                f"pools/{pool_id}",
                 params={
                     "pool[name]": name,
                     "pool[description]": description,
-                    "pool[post_ids]": " ".join(map(str, post_ids)),
+                    "pool[post_ids]": " ".join(map(str, post_ids)) if post_ids else post_ids,
                     "pool[is_active]": is_active,
                     "pool[category]": category,
                 },
@@ -210,4 +236,4 @@ class Pools(BaseEndpoint):
         )
 
     def revert(self, pool_id: int, version_id: int) -> None:
-        self._api.session.request("PUT", f"pools/{pool_id}/revert.json", params={"version_id": version_id})
+        self._api.session.put(f"pools/{pool_id}/revert", params={"version_id": version_id})
