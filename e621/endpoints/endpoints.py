@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Type, TypeVar
 
+from e621.util import camel_to_snake
+
 from ..base_model import BaseModel
 
 if TYPE_CHECKING:
@@ -17,13 +19,22 @@ class BaseEndpoint(Generic[Model]):
     def __init__(self, api: "E621API") -> None:
         self._api = api
 
+    def __init_subclass__(cls) -> None:
+        super().__init_subclass__()
+        class_name_in_snake_case = camel_to_snake(cls.__name__)
+        if getattr(cls, "_root_entity_name", None) is None:
+            cls._root_entity_name = class_name_in_snake_case
+        if getattr(cls, "_url", None) is None:
+            cls._url = class_name_in_snake_case
+
     def _default_get(self, identifier: Any, **kwargs: Any) -> Model:
         return self._model.from_response(self._api.session.get(f"{self._url}/{identifier}", **kwargs), self._api)
 
     def _default_search(
         self, params: Dict[str, Any], limit: Optional[int], page: int = 1, ignore_pagination=False
     ) -> List[Model]:
-        # ? Seems like a potential source of a bug
+        # In case the user reuses the same set of params
+        params = params.copy()
         params.update({"limit": limit, "page": page})
         if ignore_pagination:
             return self._model.from_list(

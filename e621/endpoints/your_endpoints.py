@@ -24,7 +24,6 @@ UserName: TypeAlias = str
 
 class Posts(BaseEndpoint[EnrichedPost]):
     _model = EnrichedPost
-    _root_entity_name = _url = "posts"
 
     def get(self, post_id: int) -> EnrichedPost:
         return self._default_get(post_id)
@@ -116,7 +115,6 @@ class Posts(BaseEndpoint[EnrichedPost]):
 class Favorites(BaseEndpoint[EnrichedPost]):
     _model = EnrichedPost
     _root_entity_name = "posts"
-    _url = "favorites"
 
     def search(
         self,
@@ -136,7 +134,6 @@ class Favorites(BaseEndpoint[EnrichedPost]):
 
 class PostFlags(BaseEndpoint[PostFlag]):
     _model = PostFlag
-    _root_entity_name = _url = "post_flags"
 
     def search(
         self,
@@ -172,7 +169,6 @@ class PostFlags(BaseEndpoint[PostFlag]):
 
 class Users(BaseEndpoint[User]):
     _model = User
-    _root_entity_name = _url = "users"
 
     @property
     def me(self) -> AuthenticatedUser:
