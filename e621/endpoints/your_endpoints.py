@@ -5,6 +5,7 @@ from typing import List, Optional, Union
 from backports.cached_property import cached_property
 from typing_extensions import TypeAlias
 
+
 from ..models import (
     Artist,
     ArtistVersion,
@@ -25,6 +26,7 @@ from ..models import (
     UserFeedback,
     WikiPage,
     WikiPageVersion,
+    ForumPost,
 )
 from ..util import StrEnum
 from .endpoints import BaseEndpoint, Model
@@ -207,20 +209,49 @@ class Users(EmptySearcher[User]):
 
 class PostVersions(EmptySearcher[PostVersion]):
     _model = PostVersion
+    # search[updater_name]
+    # search[updater_id]
+    # search[post_id]
+    # search[reason]
+    # search[description]
+    # search[rating_changed]
+    # search[rating]
+    # search[parent_id]
+    # search[parent_id_changed]
+    # search[tags]
+    # search[tags_added]
+    # search[tags_removed]
+    # search[locked_tags]
+    # search[locked_tags_added]
+    # search[locked_tags_removed]
+    # search[source]
 
 
 class PostApprovals(EmptySearcher[PostApproval]):
     _model = PostApproval
+    # search[user_name]
+    # search[post_tags_match]
 
 
 class NoteVersions(EmptySearcher[NoteVersion]):
     _model = NoteVersion
+    # search[body_matches]
+    # search[creator_name]
+    # search[post_tags_match]
 
 
 class WikiPages(EmptySearcher[WikiPage]):
     _model = WikiPage
+    # search[title] (Supports *)
+    # search[body_matches]
+    # search[creator_name]
+    # search[other_names_match] (Supports *)
+    # search[other_names_present] = Yes/No
+    # search[hide_deleted] = Yes/No
+    # search[order] = title/time/post_count
 
 
+# Only supports empty search
 class WikiPageVersions(EmptySearcher[WikiPageVersion]):
     _model = WikiPageVersion
 
@@ -251,27 +282,62 @@ class TagTypeVersions(EmptySearcher[TagTypeVersion]):
 
 class TagImplications(EmptySearcher[TagImplication]):
     _model = TagImplication
+    # search[name_matches]
+    # search[status]
+    # search[antecedent_tag_category]
+    # search[consequent_tag_category]
+    # search[order]
 
 
 class BulkUpdateRequests(EmptySearcher[BulkUpdateRequest]):
     _model = BulkUpdateRequest
+    # search[user_name]
+    # search[approver_name]
+    # search[title_matches]
+    # search[script_matches]
+    # search[status]
+    # search[order]
 
 
+# Support CREATE/UPDATE/DELETE
 class Blips(EmptySearcher[Blip]):
     _model = Blip
+    # search[creator_name]
+    # search[body_matches]
+    # search[response_to]
+    # search[order]
 
 
+# Support CREATE
 class Takedowns(EmptySearcher[Takedown]):
     _model = Takedown
+    # search[status]
 
 
 class UserFeedbacks(EmptySearcher[UserFeedback]):
     _model = UserFeedback
+    # search[user_name]
+    # search[creator_name]
+    # search[body_matches]
+    # search[category]
 
 
+# Only support empty searches. In case of parametrized search, returns forum_posts
 class ForumTopics(EmptySearcher[ForumTopic]):
     _model = ForumTopic
 
 
+class ForumPosts(EmptySearcher[ForumPost]):
+    _model = ForumPost
+    # search[topic_title_matches]
+    # search[body_matches]
+    # search[creator_name]
+    # search[topic_category_id]
+
+
 class PostSets(EmptySearcher[PostSet]):
     _model = PostSet
+    # search[name]
+    # search[shortname]
+    # search[creator_name]
+    # search[order]

@@ -35,6 +35,7 @@ API_ENDPOINTS = (
     "takedowns",
     "user_feedbacks",
     "forum_topics",
+    "forum_posts",
     "post_sets",
     # "post_disapprovals", # Returns 404
     # "comments", # Equivalent to posts but shouldn't be

@@ -45,6 +45,7 @@ class BaseEndpoint(Generic[Model]):
             return self._model.from_response(self._api.session.get(self._url, params=params), self._api, expect=list)
 
     def _magical_search(self, limit, page, ignore_pagination, *args: Any) -> List[Model]:
+        """A default search that automatically generates search params from self.search definition"""
         return self._default_search(
             {f"search[{argname}]": arg for argname, arg in zip(inspect.signature(self.search).parameters, args)},
             limit,

@@ -164,11 +164,11 @@ class PostFlag(BaseModel):
     created_at: str
     post_id: int
     reason: str
-    creator_id: Optional[int] = None
     is_resolved: bool
     updated_at: str
     is_deletion: bool
     category: str
+    creator_id: Optional[int] = None
 
 
 class Tag(BaseModel):
@@ -453,15 +453,68 @@ class ForumTopic(BaseModel):
     min_level: int
 
 
+class ForumPost(BaseModel):
+    id: int
+    created_at: str
+    updated_at: str
+    body: str
+    creator_id: int
+    updater_id: int
+    topic_id: int
+    is_hidden: bool
+    warning_type: Any
+    warning_user_id: Optional[int]
+
+
 class PostSet(BaseModel):
     id: int
-    name: str
     created_at: str
     updated_at: str
     creator_id: int
-    description: str
     is_public: bool
+    name: str
     shortname: str
+    description: str
     post_count: int
     transfer_on_delete: bool
     post_ids: List[int]
+
+
+__all__ = (
+    "File",
+    "Preview",
+    "Field720p",
+    "Field480p",
+    "Original",
+    "Alternates",
+    "Sample",
+    "Score",
+    "Tags",
+    "Flags",
+    "Relationships",
+    "Post",
+    "Posts",
+    "PostFlag",
+    "Tag",
+    "TagAlias",
+    "Note",
+    "Pool",
+    "User",
+    "PostVersion",
+    "PostApproval",
+    "NoteVersion",
+    "WikiPage",
+    "WikiPageVersion",
+    "Url",
+    "Artist",
+    "ArtistVersion",
+    "TagTypeVersion",
+    "TagImplication",
+    "BulkUpdateRequest",
+    "Blip",
+    "Takedown",
+    "UserFeedback",
+    "ForumTopic",
+    "ForumPost",
+    "PostSet",
+)
