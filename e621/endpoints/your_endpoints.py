@@ -1,6 +1,6 @@
 from io import BufferedReader
 from pathlib import Path
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Union, overload
 
 from backports.cached_property import cached_property
 from typing_extensions import TypeAlias
@@ -53,11 +53,26 @@ class EmptySearcher(BaseEndpoint[Model]):
         return self._default_search({}, limit, page, ignore_pagination)
 
 
-class Posts(BaseEndpoint, generate=["update", "get"]):
+class Posts(BaseEndpoint, generate=["update"]):
     _model = Post
 
+    @overload
     def get(self, post_id: int) -> Post:
-        ...
+        pass
+
+    @overload
+    def get(self, post_id: List[int]) -> List[Post]:
+        pass
+
+    def get(self, post_id: Union[int, List[int]]) -> Union[Post, List[Post]]:
+        if isinstance(post_id, int):
+            return self._default_get(post_id)
+        else:
+            return self._default_search(
+                {"tags": f"id:{','.join([str(id) for id in post_id])}"},
+                limit=len(post_id),
+                ignore_pagination=True,
+            )
 
     def search(
         self,
@@ -72,7 +87,7 @@ class Posts(BaseEndpoint, generate=["update", "get"]):
 
     def create(
         self,
-        tag_string: str,
+        tag_string: Union[str, List[str]],
         file: Union[HttpUrl, Path, BufferedReader],
         rating: Rating,
         sources: List[HttpUrl],
@@ -82,6 +97,8 @@ class Posts(BaseEndpoint, generate=["update", "get"]):
         md5_confirmation: Optional[str] = None,
         as_pending: bool = False,
     ) -> Post:
+        if isinstance(tag_string, list):
+            tag_string = " ".join(tag_string)
         params = {
             "upload[tag_string]": tag_string,
             "upload[rating]": rating,

@@ -105,8 +105,8 @@ class BaseEndpoint(Generic[Model]):
         )
 
 
-_P = ParamSpec("P")
-_T = TypeVar("T")
+_P = ParamSpec("_P")
+_T = TypeVar("_T")
 
 
 def _generate_endpoint_method(cls: Type[BaseEndpoint], method: Callable[_P, _T]) -> Callable[_P, _T]:
@@ -119,4 +119,4 @@ def _generate_endpoint_method(cls: Type[BaseEndpoint], method: Callable[_P, _T])
         bound_signature.apply_defaults()
         return magical_method(*bound_signature.arguments.values())
 
-    return wrapper
+    return wrapper  # type: ignore
