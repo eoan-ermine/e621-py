@@ -11,18 +11,7 @@ if TYPE_CHECKING:
     from .api import E621
 
 
-class _HasPostIdsAndE621API(Protocol):
-    _e6api: "E621"
-    post_ids: List[int]
-
-
-class _PostsGetterMixin:
-    @cached_property
-    def posts(self: _HasPostIdsAndE621API) -> List[EnrichedPost]:
-        return self._e6api.posts.search(tags=f"id:{','.join(map(str, self.post_ids))}")
-
-
-class EnrichedPost(Post):
+class Post(Post):
     @cached_property
     def all_tags(self) -> Set[str]:
         return set(
@@ -35,6 +24,17 @@ class EnrichedPost(Post):
             + self.tags.lore
             + self.tags.meta
         )
+
+
+class _HasPostIdsAndE621API(Protocol):
+    _e6api: "E621"
+    post_ids: List[int]
+
+
+class _PostsGetterMixin:
+    @cached_property
+    def posts(self: _HasPostIdsAndE621API) -> List[Post]:
+        return self._e6api.posts.search(tags=f"id:{','.join(map(str, self.post_ids))}")
 
 
 class EnrichedPool(Pool, _PostsGetterMixin):
