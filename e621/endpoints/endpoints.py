@@ -52,6 +52,8 @@ class BaseEndpoint(Generic[Model]):
         params = params.copy()
         params.update({"limit": limit, "page": page})
         if ignore_pagination:
+            if limit is None:
+                raise ValueError("limit is required when ignore_pagination is True")
             return self._model.from_list(
                 self._api.session.paginated_get(self._url, params, self._root_entity_name), self._api
             )

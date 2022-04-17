@@ -59,7 +59,7 @@ def main(
         for endpoint in API_ENDPOINTS:
             json_template = e6api.session.get(endpoint, params={"limit": 500}).json()
             all_jsons[endpoint] = json_template
-        final_json = (tempdir / "whatever").with_suffix(".json")
+        final_json = (tempdir / "models").with_suffix(".json")
         final_json.write_text(json.dumps(all_jsons, ensure_ascii=False))
         print("Generating")
         with io.StringIO() as temp_stdout, redirect_stdout(temp_stdout):
