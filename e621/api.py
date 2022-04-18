@@ -7,6 +7,30 @@ from .session import ApiKey, SimpleSession, Username
 class E621:
     BASE_URL = "https://e621.net/{endpoint}.json"
 
+    posts: endpoints.Posts
+    favorites: endpoints.Favorites
+    post_flags: endpoints.PostFlags
+    tags: endpoints.Tags
+    tag_aliases: endpoints.TagAliases
+    notes: endpoints.Notes
+    pools: endpoints.Pools
+    users: endpoints.Users
+    post_versions: endpoints.PostVersions
+    post_approvals: endpoints.PostApprovals
+    note_versions: endpoints.NoteVersions
+    wiki_pages: endpoints.WikiPages
+    wiki_page_versions: endpoints.WikiPageVersions
+    artists: endpoints.Artists
+    artist_versions: endpoints.ArtistVersions
+    tag_type_versions: endpoints.TagTypeVersions
+    tag_implications: endpoints.TagImplications
+    bulk_update_requests: endpoints.BulkUpdateRequests
+    blips: endpoints.Blips
+    takedowns: endpoints.Takedowns
+    user_feedbacks: endpoints.UserFeedbacks
+    forum_topics: endpoints.ForumTopics
+    post_sets: endpoints.PostSets
+
     def __init__(self, auth: Optional[Tuple[Username, ApiKey]] = None, timeout: int = 10) -> None:
         self.timeout = timeout
         self.session = SimpleSession(self.BASE_URL, timeout, auth)

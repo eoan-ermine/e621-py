@@ -25,6 +25,7 @@ typer = "^0.4.1"
 pytest = "^7.1.1"
 pytest-mock = "^3.7.0"
 pre-commit = "^2.18.1"
+Sphinx = "^4.5.0"
 
 [tool.isort]
 py_version = 37

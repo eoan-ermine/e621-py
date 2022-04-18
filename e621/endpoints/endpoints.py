@@ -105,6 +105,13 @@ class BaseEndpoint(Generic[Model]):
         )
 
 
+class EmptySearcher(BaseEndpoint[Model]):
+    _model = BaseModel
+
+    def search(self, limit: Optional[int] = None, page: int = 1, ignore_pagination: bool = False) -> List[Model]:
+        return self._default_search({}, limit, page, ignore_pagination)
+
+
 _P = ParamSpec("_P")
 _T = TypeVar("_T")
 

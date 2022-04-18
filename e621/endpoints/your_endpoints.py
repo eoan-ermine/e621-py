@@ -5,8 +5,6 @@ from typing import Any, List, Optional, Union, overload
 from backports.cached_property import cached_property
 from typing_extensions import TypeAlias
 
-from ..base_model import BaseModel
-
 
 from ..models import (
     Artist,
@@ -30,27 +28,14 @@ from ..models import (
     WikiPageVersion,
     ForumPost,
 )
-from ..util import StrEnum
-from .endpoints import BaseEndpoint, Model
-
-
-class Rating(StrEnum):
-    SAFE = "s"
-    QUESTIONABLE = "q"
-    EXPLICIT = "e"
+from ..enums import Rating
+from .endpoints import BaseEndpoint, EmptySearcher
 
 
 HttpUrl: TypeAlias = str
 StringWithInlineDText: TypeAlias = str
 UserID: TypeAlias = int
 UserName: TypeAlias = str
-
-
-class EmptySearcher(BaseEndpoint[Model]):
-    _model = BaseModel
-
-    def search(self, limit: Optional[int] = None, page: int = 1, ignore_pagination: bool = False) -> List[Model]:
-        return self._default_search({}, limit, page, ignore_pagination)
 
 
 class Posts(BaseEndpoint, generate=["update"]):
@@ -76,11 +61,13 @@ class Posts(BaseEndpoint, generate=["update"]):
 
     def search(
         self,
-        tags: str = "",
+        tags: Union[str, List[str]] = "",
         limit: Optional[int] = None,
         page: int = 1,
         ignore_pagination: bool = False,
     ) -> List[Post]:
+        if isinstance(tags, list):
+            tags = " ".join(tags)
         posts = self._default_search({"tags": tags}, limit, page, ignore_pagination)
         # FIXME: this works if the person put the tag correctly, but doesn't work with tag aliases
         return [p for p in posts if not self._api.users.me.blacklist.intersects(p.all_tags)]
