@@ -37,7 +37,7 @@ class _PostsGetterMixin:
         return self._e6api.posts.search(tags=f"id:{','.join(map(str, self.post_ids))}")
 
 
-class EnrichedPool(Pool, _PostsGetterMixin):
+class Pool(Pool, _PostsGetterMixin):
     pass
 
 
