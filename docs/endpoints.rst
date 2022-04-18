@@ -1,4 +1,4 @@
-Endpoints
+Endpoints Reference
 ================================
 
 .. autoclass:: e621.endpoints.Posts()
