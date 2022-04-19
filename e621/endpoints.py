@@ -325,6 +325,7 @@ class Pools(BaseEndpoint, generate=["get", "create"]):
     ) -> List[Pool]:
         if isinstance(id, list):
             id = ",".join(map(str, id))
+
         return self._magical_search(
             name_matches,
             id,
@@ -336,6 +337,8 @@ class Pools(BaseEndpoint, generate=["get", "create"]):
             category,
             order,
             limit,
+            page,
+            ignore_pagination,
         )
 
     def create(
@@ -431,7 +434,6 @@ class Notes(BaseEndpoint, generate=["get", "search", "create", "update", "delete
         creator_id: Optional[int] = None,
         is_active: Optional[bool] = None,
         limit: Optional[int] = None,
-        page: int = 1,
         ignore_pagination: bool = False,
     ) -> List[Note]:
         ...

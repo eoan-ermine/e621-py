@@ -27,14 +27,14 @@ class Post(Post):
 
 
 class _HasPostIdsAndE621API(Protocol):
-    _e6api: "E621"
+    e621api: "E621"
     post_ids: List[int]
 
 
 class _PostsGetterMixin:
     @cached_property
     def posts(self: _HasPostIdsAndE621API) -> List[Post]:
-        return self._e6api.posts.search(tags=f"id:{','.join(map(str, self.post_ids))}")
+        return self.e621api.posts.search(tags=f"id:{','.join(map(str, self.post_ids))}")
 
 
 class Pool(Pool, _PostsGetterMixin):
