@@ -431,6 +431,7 @@ class Notes(BaseEndpoint, generate=["get", "search", "create", "update", "delete
         creator_id: Optional[int] = None,
         is_active: Optional[bool] = None,
         limit: Optional[int] = None,
+        page: int = 1,
         ignore_pagination: bool = False,
     ) -> List[Note]:
         ...
