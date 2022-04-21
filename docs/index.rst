@@ -6,6 +6,7 @@ Welcome to e621-py's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   installation
    quickstart
    api
    endpoints

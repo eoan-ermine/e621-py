@@ -1,7 +1,6 @@
 [tool.poetry]
-name = "e621-temp"
-packages = [{ include = "e621" }]
-version = "0.0.3"
+name = "e621"
+version = "0.0.6"
 description = "e621.net API wrapper written in Python"
 authors = ["PatriotRossii <patriotrossii2019@mail.ru>"]
 license = "MIT"

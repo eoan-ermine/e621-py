@@ -63,6 +63,10 @@ class E621:
         self.forum_topics = endpoints.ForumTopics(self)
         self.post_sets = endpoints.PostSets(self)
 
+    @property
+    def logged_in(self) -> bool:
+        return self.username is not None and self.api_key is not None
+
 
 class E926(E621):
     BASE_URL = "https://e926.net/{endpoint}.json"

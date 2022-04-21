@@ -189,7 +189,7 @@ def _generate_endpoint_method(cls: Type[BaseEndpoint], method: Callable[_P, _T])
     return wrapper  # type: ignore
 
 
-class Posts(BaseEndpoint, generate=["update"]):
+class Posts(BaseEndpoint[Post], generate=["update"]):
     _model = Post
 
     @overload
@@ -220,8 +220,11 @@ class Posts(BaseEndpoint, generate=["update"]):
         if isinstance(tags, list):
             tags = " ".join(tags)
         posts = self._default_search({"tags": tags}, limit, page, ignore_pagination)
-        # FIXME: this works if the person put the tag correctly, but doesn't work with tag aliases
-        return [p for p in posts if not self._api.users.me.blacklist.intersects(p.all_tags)]
+        if self._api.logged_in:
+            # FIXME: this works if the person put the tag correctly, but doesn't work with tag aliases
+            return [p for p in posts if not self._api.users.me.blacklist.intersects(p.all_tags)]
+        else:
+            return posts
 
     def create(
         self,
@@ -282,7 +285,7 @@ class Posts(BaseEndpoint, generate=["update"]):
         ...
 
 
-class Favorites(BaseEndpoint, generate=["delete"]):
+class Favorites(BaseEndpoint[Post], generate=["delete"]):
     _model = Post
     _root_entity_name = "posts"
 
@@ -302,7 +305,7 @@ class Favorites(BaseEndpoint, generate=["delete"]):
         ...
 
 
-class Pools(BaseEndpoint, generate=["get", "create"]):
+class Pools(BaseEndpoint[Pool], generate=["get", "create"]):
     _model = Pool
 
     def get(self, pool_id: int) -> Pool:
@@ -367,7 +370,7 @@ class Pools(BaseEndpoint, generate=["get", "create"]):
         self._api.session.put(f"pools/{pool_id}/revert", params={"version_id": version_id})
 
 
-class Tags(BaseEndpoint, generate=["get", "search"]):
+class Tags(BaseEndpoint[Tag], generate=["get", "search"]):
     _model = Tag
 
     def get(self, tag_id: int) -> Tag:
@@ -388,7 +391,7 @@ class Tags(BaseEndpoint, generate=["get", "search"]):
         ...
 
 
-class TagAliases(BaseEndpoint, generate=["get"]):
+class TagAliases(BaseEndpoint[TagAlias], generate=["get"]):
     _model = TagAlias
 
     def get(self, tag_alias_id: int) -> TagAlias:
@@ -419,7 +422,7 @@ class TagAliases(BaseEndpoint, generate=["get"]):
         )
 
 
-class Notes(BaseEndpoint, generate=["get", "search", "create", "update", "delete"]):
+class Notes(BaseEndpoint[Note], generate=["get", "search", "create", "update", "delete"]):
     _model = Note
 
     def get(self, note_id: int) -> Note:
@@ -451,7 +454,7 @@ class Notes(BaseEndpoint, generate=["get", "search", "create", "update", "delete
         self._api.session.put(f"notes/{note_id}/revert", params={"version_id": version_id})
 
 
-class PostFlags(BaseEndpoint, generate=["search"]):
+class PostFlags(BaseEndpoint[PostFlag], generate=["search"]):
     _model = PostFlag
 
     def search(
@@ -471,13 +474,13 @@ class PostFlags(BaseEndpoint, generate=["search"]):
         return self._magical_create(post_id, reason_name, parent_id)
 
 
-class Users(BaseEndpoint, generate=["search", "get"]):
+class Users(BaseEndpoint[User], generate=["search", "get"]):
     _model = User
 
     @cached_property
     def me(self) -> AuthenticatedUser:
-        if self._api.username is None or self._api.api_key is None:
-            raise ValueError("Cannot access E621API.user for a non-authenticated user")
+        if not self._api.logged_in:
+            raise ValueError("Cannot access Users.me for a non-authenticated user")
         return AuthenticatedUser.from_response(self._api.session.get(f"users/{self._api.username}"), self._api)
 
     def get(self, user_identifier: Union[UserID, UserName]) -> User:
@@ -499,7 +502,7 @@ class Users(BaseEndpoint, generate=["search", "get"]):
         ...
 
 
-class PostVersions(BaseEndpoint, generate=["search"]):
+class PostVersions(BaseEndpoint[PostVersion], generate=["search"]):
     _model = PostVersion
 
     def search(
