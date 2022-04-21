@@ -31,9 +31,15 @@ class E621:
     forum_topics: endpoints.ForumTopics
     post_sets: endpoints.PostSets
 
-    def __init__(self, auth: Optional[Tuple[Username, ApiKey]] = None, timeout: int = 10) -> None:
+    def __init__(
+        self,
+        auth: Optional[Tuple[Username, ApiKey]] = None,
+        client_name: str = "e621-py",
+        client_version: str = "0.0.0",
+        timeout: int = 10,
+    ) -> None:
         self.timeout = timeout
-        self.session = SimpleSession(self.BASE_URL, timeout, auth)
+        self.session = SimpleSession(self.BASE_URL, timeout, auth, client_name, client_version)
         if auth is not None:
             self.username, self.api_key = auth
         else:

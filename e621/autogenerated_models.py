@@ -55,13 +55,13 @@ class File(BaseModel):
     ext: str
     size: int
     md5: str
-    url: str
+    url: Optional[str]
 
 
 class Preview(BaseModel):
     width: int
     height: int
-    url: str
+    url: Optional[str]
 
 
 class Field720p(BaseModel):
@@ -92,7 +92,7 @@ class Sample(BaseModel):
     has: bool
     height: int
     width: int
-    url: str
+    url: Optional[str]
     alternates: Alternates
 
 

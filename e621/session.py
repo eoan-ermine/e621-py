@@ -12,11 +12,18 @@ class SimpleSession(requests.Session):
     and always makes requests to base_url
     """
 
-    def __init__(self, base_url: str, timeout: int, auth: Optional[Tuple[Username, ApiKey]] = None) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        timeout: int,
+        auth: Optional[Tuple[Username, ApiKey]],
+        client_name: str,
+        client_version: str,
+    ) -> None:
         super().__init__()
         self.base_url = base_url
         self.timeout = timeout
-        self.headers.update({"User-Agent": "e621-py (by Eoan Ermine)"})
+        self.headers.update({"User-Agent": f"{client_name}/{client_version}"})
         if auth is not None:
             self.auth = auth
 
