@@ -43,6 +43,14 @@ posts = api.pools.search(name_matches="hello*kitty")
 ```python
 tags = api.tags.search(name_matches="large_*", limit=900, ignore_pagination=True)
 ```
+### Accessing Attributes
+When you have retrieved the entities, you can access any of their attributes without dealing with json.
+```python
+for post in posts:
+    print(post.score.total, post.all_tags, post.relationships.parent_id)
+    with open(f"{post.id}.{post.file.ext}", "wb") as f:
+        f.write(requests.get(post.file.url).content)
+```
 ### Getting
 Many entities that have unique identifiers (such as post_id or username) support indexing using these ids:
 ```python
