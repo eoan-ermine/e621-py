@@ -1,14 +1,14 @@
-Endpoints
+Endpoints Reference
 ================================
 
 .. autoclass:: e621.endpoints.Posts()
+.. autoclass:: e621.endpoints.Pools()
+.. autoclass:: e621.endpoints.Notes()
+.. autoclass:: e621.endpoints.Users()
+.. autoclass:: e621.endpoints.Tags()
 .. autoclass:: e621.endpoints.Favorites()
 .. autoclass:: e621.endpoints.PostFlags()
-.. autoclass:: e621.endpoints.Tags()
 .. autoclass:: e621.endpoints.TagAliases()
-.. autoclass:: e621.endpoints.Notes()
-.. autoclass:: e621.endpoints.Pools()
-.. autoclass:: e621.endpoints.Users()
 .. autoclass:: e621.endpoints.PostVersions()
 .. autoclass:: e621.endpoints.PostApprovals()
 .. autoclass:: e621.endpoints.NoteVersions()

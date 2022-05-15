@@ -1,4 +1,4 @@
-Client Classes
+Client Classes Reference
 ================================
 
 .. autoclass:: e621.E621

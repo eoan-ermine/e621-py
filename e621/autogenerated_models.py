@@ -55,13 +55,13 @@ class File(BaseModel):
     ext: str
     size: int
     md5: str
-    url: str
+    url: Optional[str]
 
 
 class Preview(BaseModel):
     width: int
     height: int
-    url: str
+    url: Optional[str]
 
 
 class Field720p(BaseModel):
@@ -92,7 +92,7 @@ class Sample(BaseModel):
     has: bool
     height: int
     width: int
-    url: str
+    url: Optional[str]
     alternates: Alternates
 
 
@@ -132,7 +132,7 @@ class Relationships(BaseModel):
 class Post(BaseModel):
     id: int
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     file: Optional[File]
     preview: Optional[Preview]
     sample: Optional[Sample]
@@ -165,7 +165,7 @@ class PostFlag(BaseModel):
     post_id: int
     reason: str
     is_resolved: bool
-    updated_at: str
+    updated_at: Optional[str]
     is_deletion: bool
     category: str
     creator_id: Optional[int] = None
@@ -176,11 +176,11 @@ class Tag(BaseModel):
     name: str
     post_count: int
     related_tags: str
-    related_tags_updated_at: str
+    related_tags_updated_at: Optional[str]
     category: int
     is_locked: bool
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
 
 
 class TagAlias(BaseModel):
@@ -201,7 +201,7 @@ class TagAlias(BaseModel):
 class Note(BaseModel):
     id: int
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     creator_id: int
     x: int
     y: int
@@ -218,7 +218,7 @@ class Pool(BaseModel):
     id: int
     name: str
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     creator_id: int
     description: str
     is_active: bool
@@ -250,7 +250,7 @@ class PostVersion(BaseModel):
     post_id: int
     tags: str
     updater_id: int
-    updated_at: str
+    updated_at: Optional[str]
     rating: str
     parent_id: Optional[int]
     source: str
@@ -277,13 +277,13 @@ class PostApproval(BaseModel):
     user_id: int
     post_id: int
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
 
 
 class NoteVersion(BaseModel):
     id: int
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     x: int
     y: int
     width: int
@@ -299,7 +299,7 @@ class NoteVersion(BaseModel):
 class WikiPage(BaseModel):
     id: int
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     title: str
     body: str
     creator_id: int
@@ -314,7 +314,7 @@ class WikiPage(BaseModel):
 class WikiPageVersion(BaseModel):
     id: int
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     title: str
     body: str
     updater_id: int
@@ -331,14 +331,14 @@ class Url(BaseModel):
     url: str
     normalized_url: str
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     is_active: bool
 
 
 class Artist(BaseModel):
     id: int
     name: str
-    updated_at: str
+    updated_at: Optional[str]
     is_active: bool
     other_names: List[str]
     group_name: str
@@ -357,7 +357,7 @@ class ArtistVersion(BaseModel):
     name: str
     updater_id: int
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     is_active: bool
     other_names: List[str]
     group_name: str
@@ -369,7 +369,7 @@ class ArtistVersion(BaseModel):
 class TagTypeVersion(BaseModel):
     id: int
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     old_type: int
     new_type: int
     is_locked: bool
@@ -399,7 +399,7 @@ class BulkUpdateRequest(BaseModel):
     script: str
     status: str
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     approver_id: Optional[int]
     forum_post_id: Optional[int]
     title: str
@@ -411,7 +411,7 @@ class Blip(BaseModel):
     body: str
     response_to: Optional[int]
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     is_hidden: bool
     warning_type: Any  # ? What is this
     warning_user_id: Optional[int]
@@ -424,7 +424,7 @@ class Takedown(BaseModel):
     approver_id: Optional[int]
     reason_hidden: bool
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     post_count: int
 
 
@@ -435,7 +435,7 @@ class UserFeedback(BaseModel):
     created_at: str
     body: str
     category: str
-    updated_at: str
+    updated_at: Optional[str]
 
 
 class ForumTopic(BaseModel):
@@ -448,7 +448,7 @@ class ForumTopic(BaseModel):
     is_locked: bool
     is_hidden: bool
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     category_id: int
     min_level: int
 
@@ -456,7 +456,7 @@ class ForumTopic(BaseModel):
 class ForumPost(BaseModel):
     id: int
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     body: str
     creator_id: int
     updater_id: int
@@ -469,7 +469,7 @@ class ForumPost(BaseModel):
 class PostSet(BaseModel):
     id: int
     created_at: str
-    updated_at: str
+    updated_at: Optional[str]
     creator_id: int
     is_public: bool
     name: str

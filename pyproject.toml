@@ -1,13 +1,12 @@
 [tool.poetry]
 name = "e621"
-version = "0.0.2"
+version = "0.0.6"
 description = "e621.net API wrapper written in Python"
-include = ["e621/py.typed"]
 authors = ["PatriotRossii <patriotrossii2019@mail.ru>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/PatriotRossii/e621-py"
-keywords = ["e621", "furry", "yiff", "api"]
+keywords = ["e621.net", "e621", "e926.net", "e926", "furry", "yiff", "api"]
 classifiers = ["Operating System :: OS Independent"]
 
 [tool.poetry.dependencies]
@@ -26,6 +25,7 @@ pytest = "^7.1.1"
 pytest-mock = "^3.7.0"
 pre-commit = "^2.18.1"
 Sphinx = "^4.5.0"
+myst-parser = "^0.17.2"
 
 [tool.isort]
 py_version = 37

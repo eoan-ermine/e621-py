@@ -12,11 +12,18 @@ class SimpleSession(requests.Session):
     and always makes requests to base_url
     """
 
-    def __init__(self, base_url: str, timeout: int, auth: Optional[Tuple[Username, ApiKey]] = None) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        timeout: int,
+        auth: Optional[Tuple[Username, ApiKey]],
+        client_name: str,
+        client_version: str,
+    ) -> None:
         super().__init__()
         self.base_url = base_url
         self.timeout = timeout
-        self.headers.update({"User-Agent": "e621-py (by Eoan Ermine)"})
+        self.headers.update({"User-Agent": f"{client_name}/{client_version}"})
         if auth is not None:
             self.auth = auth
 
@@ -37,7 +44,7 @@ class SimpleSession(requests.Session):
         """Performs a paginated GET request to the given endpoint, returning a list of all the results"""
         results: List[Dict[Any, Any]] = []
         while True:
-            json = self.get(endpoint, params, *args, **kwargs).json()
+            json = self.get(endpoint, params=params, *args, **kwargs).json()
             chunk: List[Dict[Any, Any]]
             if root_entity_name is not None and isinstance(json, dict):
                 chunk = json[root_entity_name]
@@ -46,6 +53,6 @@ class SimpleSession(requests.Session):
             params["page"] += 1
             params["limit"] -= len(chunk)
             results.extend(chunk)
-            if params["limit"] <= 0:
+            if params["limit"] <= 0 or len(chunk) == 0:
                 break
         return results
