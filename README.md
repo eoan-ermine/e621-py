@@ -8,7 +8,7 @@ e621 API documentation is currently highly undocumented, unstable, and sometimes
 
 ## Installation
 ```bash
-$ pip install e621-temp
+$ pip install e621
 ```
 
 ## Quickstart
