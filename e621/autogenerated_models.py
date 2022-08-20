@@ -68,7 +68,7 @@ class Field720p(BaseModel):
     type: str
     height: int
     width: int
-    urls: List[str]
+    urls: List[Optional[str]]
 
 
 class Field480p(Field720p):
